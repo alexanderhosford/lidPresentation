@@ -402,4 +402,8 @@ body.deck-container {
   script {
     display: none;
   }
+
+  img {
+    max-width: 100%;
+  }
 }
