@@ -1,8 +1,6 @@
-html, body {
+html {
   height: 100%;
 }
-
-
 
 body.deck-container {
   overflow-y: auto;
@@ -403,9 +401,5 @@ body.deck-container {
 
   script {
     display: none;
-  }
-
-  img {
-    max-width: 100%;
   }
 }
