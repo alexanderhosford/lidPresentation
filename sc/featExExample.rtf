@@ -1,0 +1,170 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1138\cocoasubrtf320
+{\fonttbl\f0\fnil\fcharset0 AndaleMono;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue191;\red191\green0\blue0;\red96\green96\blue96;
+}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f0\fs24 \cf0 (\
+\cf2 var\cf0  featEx; \cf3 //A variable to store the function that performs the feature extraction.\cf0 \
+\pard\pardeftab720
+\cf0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+\cf3 //This array stores all the 66 possible language combinations\cf0 \
+\
+\cf2 var\cf0  langArray = [\
+	[\cf4 "Eng"\cf0 ,\cf4 "Ger"\cf0 ,\cf4 "EngGer"\cf0 ]\
+];\
+\
+\cf3 //This array serves two purposes - One, to hold a string that is used for the correct naming of the ARFF file an two,\cf0 \
+\cf3 //to hold an integer that is passed through to the 'numfeatures' value. This is required for the correct construction of the ARFF file so that WEKA will recognise it properly.\cf0 \
+\
+\cf2 var\cf0  featArray = [\
+	[\cf4 "4MFCC"\cf0 ,4],\
+	[\cf4 "4MFCCnPVI"\cf0 ,5],\
+	[\cf4 "4MFCCtartini"\cf0 ,6],\
+	[\cf4 "13MFCC"\cf0 ,13],\
+	[\cf4 "13MFCCtartini"\cf0 ,15],\
+	[\cf4 "41MFCC"\cf0 ,41],\
+	[\cf4 "41MFCCtartini"\cf0 ,43],\
+	[\cf4 "41MFCCtartiniNPVI"\cf0 ,44]\
+];\
+\
+featEx = \{\cf2 |lang1,lang2,langPair,featureSet,amountFeatures,featuresForSCMIR|\cf0 \
+	\
+	\cf2 var\cf0  file; \cf3 //The ARFF file.\cf0 \
+	\cf2 var\cf0  numFeatures = amountFeatures; \cf3 //I must track number of features for the ARFF file to construct properly - this ensures the correct number of attributes are written.\cf0 \
+	\cf2 var\cf0  last = numFeatures-1; \cf3 //For checking if the current written feature is the last feature in the ARFF file.\cf0 \
+	\cf2 var\cf0  writeFeatures, nPVI; \cf3 //for the feature writing and the nPVI functions.\cf0 \
+	\cf2 var\cf0  filename = (langPair++featureSet); \cf3 //This allows the correct naming of a file.\cf0 	\
+	\cf3 //Depending on the index 'i' of featArray (passed in as 'featuresForSCMIR'), the arguments for SCMIR are set accordingly.\cf0 \
+	\cf2 var\cf0  feats = [\
+		[[\cf2 MFCC\cf0 , 4]],\
+		[[\cf2 MFCC\cf0 , 4]],\
+		[[\cf2 MFCC\cf0 , 4],[\cf2 Tartini\cf0 ]],\
+		[[\cf2 MFCC\cf0 , 13]],\
+		[[\cf2 MFCC\cf0 , 13],[\cf2 Tartini\cf0 ]],\
+		[[\cf2 MFCC\cf0 , 41]],\
+		[[\cf2 MFCC\cf0 , 41],[\cf2 Tartini\cf0 ]],\
+		[[\cf2 MFCC\cf0 , 41],[\cf2 Tartini\cf0 ]]\
+	];\
+	\
+	\cf2 var\cf0  scmirArg = feats[featuresForSCMIR]; \cf3 //Sets the SCMIR argument to be an array from the 'feats' array.\cf0 \
+	\
+	\cf3 //First bank of language samples.\cf0 \
+	\cf2 var\cf0  lang1bank = \cf2 Array\cf0 .fill(10, \{\cf2 arg\cf0  index;\
+					\cf4 "/Users/panda/lidPresentation/sc/audio/"\cf0 ++lang1++\cf4 "/"\cf0 ++lang1++(index+1)++\cf4 ".aif"\cf0 ;\
+					\});\
+	\cf3 //Second bank of language samples.\cf0 \
+	\cf2 var\cf0  lang2bank = \cf2 Array\cf0 .fill(10, \{\cf2 arg\cf0  index;\
+					\cf4 "/Users/panda/lidPresentation/sc/audio/"\cf0 ++lang2++\cf4 "/"\cf0 ++lang2++(index+1)++\cf4 ".aif"\cf0 ;\
+					\});	\
+	\
+	file = \cf2 File\cf0 (filename++\cf4 ".arff"\cf0 ,\cf4 "w"\cf0 );\
+	\
+	file.write(\cf4 "@RELATION SCMIR\\n"\cf0 );\
+	\
+	numFeatures.do\{\cf2 |i|\cf0 \
+		file.write(\cf4 "@ATTRIBUTE"\cf0 +i+\cf4 "NUMERIC\\n"\cf0 );\
+	\};\
+	\
+	file.write(\cf4 "@ATTRIBUTE class \{"\cf0 ++lang1++\cf4 ","\cf0 ++lang2++\cf4 "\}\\n"\cf0 );\
+	\
+	file.write(\cf4 "@DATA\\n"\cf0 );\
+\
+	file.close;\
+	\
+	writeFeatures = \{\cf2 |mirfile, category, npvi|\cf0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural
+\cf0 		\
+		file = \cf2 File\cf0 (filename++\cf4 ".arff"\cf0 ,\cf4 "a"\cf0 );\
+		\
+		mirfile.numframes.do\{\cf2 |i|\cf0 	\cf3 //For every feature frame.\cf0 \
+			\cf2 var\cf0  outputstring = \cf4 ""\cf0 ;	\cf3 //A variable for the output string.\cf0 \
+			\cf2 var\cf0  pos = i*mirfile.numfeatures;	\cf3 //This works out where in the data array to take data from to write to file.\cf0 \
+			\cf2 var\cf0  dataArray; \cf3 //An array to store all the data.\cf0 \
+			\
+			dataArray  = mirfile.featuredata[pos..(pos+last)]; \
+			if(npvi.notNil,\{ dataArray = dataArray++[npvi]\}); \cf3 //Checks if there's nPVI data and adds accordingly\cf0 \
+			\
+			dataArray.do\{\cf2 |val,j|\cf0 \
+				if(j<(dataArray.size-1)) \{	\cf3 //If the current piece of data to be written is not the last in the array...\cf0 \
+					outputstring = outputstring++val++\cf4 ","\cf0 ;\
+				\} \{\
+					outputstring = outputstring++val++\cf4 ","\cf0 ++category++\cf4 "\\n"\cf0 ; \cf3 //...Otherwise end line with the category of the current instance and the '\\n', required to signify the end of a line in ARFF\cf0 \
+				\};\
+			\};\
+			\
+			file.write(outputstring); \cf3 //Writes the string to the file.\cf0 \
+		\};\
+		\
+		file.close; \cf3 //Closes the file.\cf0 \
+	\};\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+\cf0 	\
+	\cf3 //This function takes in one argument, extracted onsets, and calculates the nPVI - taken from Grabe & Low 2002.\cf0 \
+\pard\pardeftab720
+\cf0 	nPVI = \{\cf2 |input|\cf0 \
+		\
+		\cf2 var\cf0 \'a0pvi = 0.0;\'a0\cf3 //a place to store the raw PVI\cf0 \
+		\cf2 var\cf0  onsetArray = input.differentiate;\'a0\cf3 //Takes the onsets and differentiates them to calculate durations.\cf0 \
+		\
+		onsetArray.postln;\
+		\
+		\cf3 //for the entries in the onset array, apart from the last one\cf0 \
+		(onsetArray.size-2).do\{\cf2 |i|\cf0 \
+			\cf2 var\cf0  durationnow = onsetArray[i+1]; 	\cf3 //This onset	\'a0\cf0 \
+			\cf2 var\cf0  durationnext =\'a0onsetArray[i+2];	\cf3 //The next onset\cf0 \
+			pvi = pvi+(((durationnow-durationnext).abs)/(((durationnow+durationnext).abs)*0.5));\'a0\cf3 //Gives the absolute value for all the onsets summed.\cf0 \
+		\};\
+	\
+		pvi = pvi/(onsetArray.size-1);\'a0\cf3 //Divide the sum by number of terms - this 'normalises' the measure.\cf0 \
+		\cf3 //pvi*100; //The omitted step to keep WEKA happy.\cf0 \
+	\};\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+\cf0 	\
+	lang1bank.do\{ \cf2 |file,i|\cf0 \
+		\
+		e = \cf2 SCMIRAudioFile\cf0 (file,scmirArg); \cf3 //Creates an SCMIRAudioFile from the AIFF, with the desired type and number of features according to the selected SCMIR argument.\cf0 \
+		e.extractFeatures(); \cf3 //Extracts the features from the file.\cf0 \
+		\
+		e.gatherFeaturesBySegments([0.0]); \
+		\cf3 //e.gatherFeaturesBySegments((0.0,5.0..(e.duration-(e.duration%5.0))));\cf0 \
+\
+		if((numFeatures==5)||(numFeatures==44)) \{ \cf3 //This checks to see if the current feature set contains an nPVI measure.\cf0 \
+			e.extractOnsets();	\cf3 //If it does, extract the onsets from the file.\cf0 \
+			o = nPVI.(e.onsetdata); \cf3 //Passes the onset array to the nPVI function to obtain a single value.\cf0 \
+			writeFeatures.(e,lang1,o); \cf3 //Calls the feature writing function, passing through the features and which language it is an the nPVI value...\cf0 \
+		\} \{\
+			writeFeatures.(e,lang1); \cf3 //...Else it just passes through the features and which language it is.\cf0 \
+		\};\
+	\};\
+\
+	lang2bank.do\{ \cf2 |file,i|\cf0 \
+		\
+		e = \cf2 SCMIRAudioFile\cf0 (file,scmirArg);\
+		e.extractFeatures();\
+		e.gatherFeaturesBySegments([0.0]);\
+		\
+		if((numFeatures==5)||(numFeatures==44)) \{\
+			e.extractOnsets();\
+			o = nPVI.(e.onsetdata);\
+			writeFeatures.(e,lang2,o);\
+		\} \{\
+			writeFeatures.(e,lang2);\
+		\};\
+	\};		\
+\}; \
+	\
+\cf3 //This causes everything to happen...\cf0 \
+\{	\
+langArray.do\{ \cf2 |langData,j|\cf0  \cf3 //For each of the language combinations..\cf0 \
+	\
+	featArray.do\{ \cf2 |featData,i|\cf0  \cf3 //For each of the feature sets..\cf0 \
+				\
+		(langData++featData).postln; \cf3 //Lets me know which language pair and which feature set it's analysing.\cf0 \
+		\
+		featEx.(*(langData++featData++[i])); \cf3 //Calls the featEx function, passing in language pair and feature set. The '*' tells SC to split up the array entry into individual arguments.\cf0 \
+	\};\
+\} \
+\}.fork;\
+)}
