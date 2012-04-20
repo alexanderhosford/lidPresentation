@@ -1,0 +1,80 @@
+LiD Presentation Notes
+
+1. Intro Slide
+
+    ~ Who I am
+    ~ What this is
+
+2. What is LiD
+
+    ~ Clue's in the name
+    ~ Shares a lot of techniques with SI & ASR
+
+3. Who Cares?
+
+    ~ Ethnologue statistics
+
+4. LDI
+
+    ~ We can visualise this with a measure known as LDI
+    ~ Those locations with the highest LDI measure are in emerging economies
+    ~ So who cares? Businesses might.
+
+5. India LDI
+
+    ~ One of the largest emerging economies, clear to see the benefits of LiD
+
+6. Practical
+
+    ~ Uses
+
+7. Language Differences
+
+    ~ Phonemes - smallest distinct linguistic measure
+    ~ Prosody - pitch curves, rhythm, intonation
+    ~ Phonotactics - the rules behind the sequencing of phonemes
+    ~ Syntax - the rules that govern the sequence of larger structures such as words
+
+8. What Can humans Do?
+
+    ~ Infancy - studies show that spinal transduction of sound from glottis clearly audible in womb.
+    ~ No wonder this leads to prosodic bias
+
+9. Previous Attempts/10. A simpler Approach...
+
+    ~ All statistical
+    ~ Given human abilities, logical to deduce that acoustical features play a great part in the brain's pattern classification
+
+11. System Overview
+
+12. Feature Extraction
+
+    ~nPVI measure from Grabe & Low - wrote myself
+
+13. MFCCs
+
+    ~ A practical and compact way of showing the power spectrum of a signal.
+    ~ If you want to love the maths then you can.
+
+14. nPVI Function
+
+    ~ All these features ended up giving values between 0-1, good for WEKA
+
+15. Classification
+    
+    ~ Used a MLP
+    ~ Also used Naïve Bayes as a 'lazy function' to compare against
+
+16. WEKA
+
+17. Comparisons Made
+
+18. Results
+
+19. Robustness
+
+20. What's next
+
+21. Towards Babelfish
+
+
